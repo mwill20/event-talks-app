@@ -375,15 +375,18 @@ body {
 }
 
 .badge {
-    display: inline-block;
-    vertical-align: middle;
-    font-size: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.68rem;
     font-weight: 600;
-    padding: 3px 8px;
-    line-height: 1.25;
-    border-radius: 6px;
+    padding: 0 6px;
+    height: 20px;
+    line-height: 1;
+    border-radius: 5px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+    box-sizing: border-box;
 }
 
 .badge.feature { background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); color: var(--accent-green); }
@@ -407,15 +410,13 @@ body {
 }
 
 .feed-card-body p {
-    font-size: 0.88rem;
-    line-height: 1.45;
+    font-size: 0.85rem;
+    line-height: 1.4;
     color: var(--text-secondary);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    display: block;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-height: 2.9rem;
 }
 
 .feed-card.active .feed-card-body p {
