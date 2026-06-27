@@ -375,9 +375,14 @@ body {
 }
 
 .badge {
-    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
     font-weight: 600;
-    padding: 0.2rem 0.6rem;
+    padding: 0 0.5rem;
+    height: 22px;
+    line-height: 1;
     border-radius: 6px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -387,6 +392,8 @@ body {
 .badge.change { background: rgba(129, 140, 248, 0.1); border: 1px solid rgba(129, 140, 248, 0.2); color: var(--accent-indigo); }
 .badge.deprecation { background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); color: var(--accent-amber); }
 .badge.fix { background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.2); color: var(--accent-red); }
+.badge.announcement { background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2); color: #22d3ee; }
+.badge.issue { background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); color: #fb7185; }
 .badge.general { background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.2); color: var(--text-secondary); }
 
 .card-date {
