@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Pulse - LinkedIn Post Generator</title>
+    <meta name="description" content="Track Google Cloud BigQuery release notes and generate engaging LinkedIn posts with AI.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- TOP NAVIGATION BAR -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#logo-grad-1)"/>
+                        <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="url(#logo-grad-2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="logo-grad-1" x1="2" y1="2" x2="22" y2="12" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#38bdf8"/>
+                                <stop offset="1" stop-color="#818cf8"/>
+                            </linearGradient>
+                            <linearGradient id="logo-grad-2" x1="2" y1="12" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#34d399"/>
+                                <stop offset="1" stop-color="#38bdf8"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1>BigQuery <span>Release Pulse</span></h1>
+            </div>
+            <div class="header-actions">
+                <div id="sync-status" class="sync-status">
+                    <span class="status-dot green"></span>
+                    <span id="sync-text">Checking feed...</span>
+                </div>
+                <button id="btn-refresh" class="btn-icon" title="Refresh Release Notes">
+                    <svg class="icon-refresh" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                    </svg>
+                </button>
+                <button id="btn-settings" class="btn-icon" title="Gemini AI Settings">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="app-main">
+            <!-- LEFT PANEL: FEED LIST -->
+            <section class="panel-left">
+                <div class="search-filter-wrapper">
+                    <div class="search-box">
+                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" id="search-input" placeholder="Search updates (e.g. vector search, billing)...">
+                        <button id="btn-clear-search" class="btn-clear" style="display: none;">&times;</button>
+                    </div>
+                    <div class="filter-pills" id="filter-pills">
+                        <button class="pill active" data-filter="all">All</button>
+                        <button class="pill" data-filter="Feature">Features</button>
+                        <button class="pill" data-filter="Change">Changes</button>
+                        <button class="pill" data-filter="Deprecation">Deprecations</button>
+                        <button class="pill" data-filter="Fix">Fixes</button>
+                    </div>
+                </div>
+
+                <div class="feed-container" id="feed-container">
+                    <!-- Shimmer Loaders (Will be replaced by JavaScript) -->
+                    <div class="shimmer-card"></div>
+                    <div class="shimmer-card"></div>
+                    <div class="shimmer-card"></div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: DETAILED VIEW & GENERATOR -->
+            <section class="panel-right" id="panel-right">
+                <!-- Empty State -->
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-state-graphic">
+                        <svg viewBox="0 0 200 200" width="160" height="160">
+                            <defs>
+                                <radialGradient id="glow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.15" />
+                                    <stop offset="100%" stop-color="#0b0f19" stop-opacity="0" />
+                                </radialGradient>
+                            </defs>
+                            <circle cx="100" cy="100" r="80" fill="url(#glow)" />
+                            <!-- Outer circles/nodes -->
+                            <circle cx="100" cy="40" r="6" fill="#818cf8" />
+                            <circle cx="50" cy="90" r="5" fill="#34d399" />
+                            <circle cx="150" cy="90" r="5" fill="#38bdf8" />
+                            <circle cx="75" cy="150" r="7" fill="#fbbf24" />
+                            <circle cx="125" cy="150" r="6" fill="#f87171" />
+                            <!-- Connections -->
+                            <line x1="100" y1="40" x2="50" y2="90" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+                            <line x1="100" y1="40" x2="150" y2="90" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+                            <line x1="50" y1="90" x2="75" y2="150" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+                            <line x1="150" y1="90" x2="125" y2="150" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+                            <line x1="75" y1="150" x2="125" y2="150" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+                            <line x1="100" y1="100" x2="100" y2="40" stroke="rgba(56,189,248,0.3)" stroke-width="2" stroke-dasharray="4 4" />
+                            <!-- Central Icon -->
+                            <g transform="translate(84, 84)">
+                                <path d="M16 2v4M16 26v4M30 16h-4M4 16h4M25.9 25.9l-2.83-2.83M6.93 6.93l2.83 2.83M25.9 6.93l-2.83 2.83M6.93 25.9l2.83-2.83" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="16" cy="16" r="6" fill="#0b0f19" stroke="#818cf8" stroke-width="2.5"/>
+                            </g>
+                        </svg>
+                    </div>
+                    <h2>No Update Selected</h2>
+                    <p>Select a BigQuery release note from the list on the left to view full details and generate a draft post for LinkedIn.</p>
+                </div>
+
+                <!-- Workspace / Generator State -->
+                <div class="workspace-state hidden" id="workspace-state">
+                    <!-- selected item preview -->
+                    <div class="selected-update-container">
+                        <div class="update-header">
+                            <span class="badge" id="selected-type-badge">Feature</span>
+                            <span class="date" id="selected-date">June 25, 2026</span>
+                        </div>
+                        <div class="update-body-html" id="selected-html">
+                            <!-- Raw HTML filled dynamically -->
+                        </div>
+                        <div class="update-footer">
+                            <a id="selected-doc-link" href="#" target="_blank" class="text-link">
+                                Open Official Release Notes
+                                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- config options -->
+                    <div class="generator-config">
+                        <h3>Post Parameters</h3>
+                        
+                        <div class="config-section">
+                            <label>Writing Tone</label>
+                            <div class="tone-grid">
+                                <button class="tone-btn active" data-tone="Professional">
+                                    <span class="tone-emoji">💼</span>
+                                    <span class="tone-name">Professional</span>
+                                </button>
+                                <button class="tone-btn" data-tone="Excited">
+                                    <span class="tone-emoji">🚀</span>
+                                    <span class="tone-name">Excited</span>
+                                </button>
+                                <button class="tone-btn" data-tone="Tech-Evangelist">
+                                    <span class="tone-emoji">🧠</span>
+                                    <span class="tone-name">Evangelist</span>
+                                </button>
+                                <button class="tone-btn" data-tone="Short & Punchy">
+                                    <span class="tone-emoji">⚡</span>
+                                    <span class="tone-name">Punchy</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="config-switches">
+                            <div class="switch-row">
+                                <span class="switch-label">Include Emojis</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-emojis" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="switch-row">
+                                <span class="switch-label">Include Hashtags</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-hashtags" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="switch-row">
+                                <span class="switch-label">Include Link</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-link" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="input-row hidden" id="custom-link-container">
+                            <label for="custom-link">Custom Link URL (optional)</label>
+                            <input type="url" id="custom-link" placeholder="https://cloud.google.com/bigquery...">
+                        </div>
+
+                        <button id="btn-generate" class="btn-primary">
+                            <span class="btn-text">Generate Post Draft</span>
+                            <span class="btn-glow-effects"></span>
+                        </button>
+                    </div>
+
+                    <!-- LinkedIn Mockup Preview -->
+                    <div class="linkedin-preview-container">
+                        <div class="preview-header">
+                            <div class="header-tab">LinkedIn Preview</div>
+                            <div class="api-badge" id="ai-generation-indicator">Local Engine</div>
+                        </div>
+                        
+                        <div class="linkedin-card">
+                            <div class="card-author">
+                                <div class="author-avatar">
+                                    <svg viewBox="0 0 24 24" width="40" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="24" height="24" rx="12" transform="scale(1.666)" fill="#1e293b"/>
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#64748b"/>
+                                    </svg>
+                                </div>
+                                <div class="author-details">
+                                    <h4 id="user-display-name">GCP Cloud Architect</h4>
+                                    <p id="user-display-title">Data Platform & Analytics Expert</p>
+                                    <span class="post-time">1h • <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 10h3l-4 4-4-4h3V7h2v5z"/></svg></span>
+                                </div>
+                                <div class="card-options">•••</div>
+                            </div>
+                            
+                            <div class="card-content-editable">
+                                <textarea id="post-draft-area" readonly placeholder="Your generated post draft will appear here. You can click 'Generate Post Draft' to load it and edit it..."></textarea>
+                                <div class="character-count" id="char-counter">0 characters</div>
+                            </div>
+
+                            <div class="card-actions">
+                                <button class="action-btn">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                                    <span>Like</span>
+                                </button>
+                                <button class="action-btn">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                    <span>Comment</span>
+                                </button>
+                                <button class="action-btn">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M17 2.1l4 4-4 4M3 22v-6a4 4 0 0 1 4-4h14"/></svg>
+                                    <span>Repost</span>
+                                </button>
+                                <button class="action-btn">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                    <span>Send</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-actions">
+                            <button id="btn-edit-post" class="btn-secondary">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"/></svg>
+                                <span id="edit-btn-text">Edit Draft</span>
+                            </button>
+                            <button id="btn-copy-post" class="btn-glow">
+                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                <span>Copy to Clipboard</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- SETTINGS MODAL (Gemini Key Setup) -->
+    <div class="modal-overlay hidden" id="settings-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Gemini AI Settings</h2>
+                <button class="btn-close" id="btn-close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="settings-desc">
+                    By default, the application generates drafts locally using rules and templates. 
+                    You can connect your <strong>Gemini API Key</strong> below to unlock custom AI generation.
+                </p>
+                <div class="api-security-warning">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <span><strong>Privacy Guard:</strong> Your API Key is saved directly in your browser's local storage and is sent transiently. It is never stored on our servers.</span>
+                </div>
+                <div class="form-group">
+                    <label for="gemini-key">Gemini API Key</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="gemini-key" placeholder="AIzaSy...">
+                        <button id="btn-toggle-key-visibility" class="btn-eye" type="button">
+                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <span class="help-text"><a href="https://aistudio.google.com/" target="_blank" class="text-link">Get a free API Key from Google AI Studio</a></span>
+                </div>
+
+                <div class="form-group inline-group">
+                    <div>
+                        <label for="profile-name">LinkedIn User Name</label>
+                        <input type="text" id="profile-name" placeholder="GCP Cloud Architect">
+                    </div>
+                    <div>
+                        <label for="profile-title">LinkedIn Headline</label>
+                        <input type="text" id="profile-title" placeholder="Data Platform & Analytics Expert">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btn-clear-settings">Clear All</button>
+                <button class="btn-glow" id="btn-save-settings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Frontend logic -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
