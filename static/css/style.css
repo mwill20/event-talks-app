@@ -1231,7 +1231,270 @@ input:checked + .slider:before {
     .panel-right {
         overflow-y: visible;
     }
-    .workspace-state {
-        padding: 1.25rem;
-    }
 }
+
+/* EXPORT AND ROW CONTROLS */
+.filter-controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.btn-export {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.4rem 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    height: 32px;
+}
+
+.btn-export:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-blue);
+    color: var(--text-primary);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);
+}
+
+.btn-export:active {
+    transform: scale(0.97);
+}
+
+/* CARD COPY TO CLIPBOARD BUTTON */
+.card-copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+    z-index: 5;
+    color: var(--text-secondary);
+}
+
+.feed-card:hover .card-copy-btn {
+    opacity: 1;
+}
+
+.card-copy-btn:hover {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: var(--accent-blue);
+    color: var(--text-primary);
+}
+
+.card-copy-btn.copied {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    background: rgba(52, 211, 153, 0.15);
+}
+
+.feed-card-header .card-date {
+    transition: margin-right 0.2s ease;
+}
+
+.feed-card:hover .card-date {
+    margin-right: 28px;
+}
+
+/* LIGHT THEME OVERRIDES */
+body.light-theme {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #f1f5f9;
+    --bg-card: rgba(255, 255, 255, 0.7);
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-hover: rgba(15, 23, 42, 0.16);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    
+    --accent-blue-glow: rgba(56, 189, 248, 0.08);
+    --accent-indigo-glow: rgba(129, 140, 248, 0.08);
+    --accent-green-glow: rgba(52, 211, 153, 0.08);
+    --accent-amber-glow: rgba(251, 191, 36, 0.08);
+    --accent-red-glow: rgba(248, 113, 113, 0.08);
+    
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.02) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.02) 0%, transparent 40%);
+}
+
+body.light-theme .app-header {
+    background: rgba(255, 255, 255, 0.8);
+    border-bottom-color: rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .search-filter-wrapper {
+    background: rgba(255, 255, 255, 0.85);
+    border-bottom-color: rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .search-box input,
+body.light-theme .inline-group input,
+body.light-theme .password-wrapper input,
+body.light-theme .input-row input {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.12);
+    color: #0f172a;
+}
+
+body.light-theme .btn-icon,
+body.light-theme .btn-export,
+body.light-theme .btn-secondary {
+    background: rgba(15, 23, 42, 0.02);
+    border-color: rgba(15, 23, 42, 0.08);
+    color: #334155;
+}
+
+body.light-theme .btn-icon:hover,
+body.light-theme .btn-export:hover,
+body.light-theme .btn-secondary:hover {
+    background: rgba(15, 23, 42, 0.05);
+    border-color: var(--accent-blue);
+    color: #0f172a;
+}
+
+body.light-theme .pill {
+    background: rgba(15, 23, 42, 0.02);
+    border-color: rgba(15, 23, 42, 0.06);
+    color: #475569;
+}
+
+body.light-theme .pill:hover {
+    background: rgba(15, 23, 42, 0.05);
+    color: #0f172a;
+}
+
+body.light-theme .pill.active {
+    background: rgba(56, 189, 248, 0.08);
+    border-color: var(--accent-blue);
+    color: #0284c7;
+}
+
+body.light-theme .tone-btn {
+    background: rgba(15, 23, 42, 0.01);
+}
+
+body.light-theme .tone-btn:hover {
+    background: rgba(15, 23, 42, 0.03);
+    color: #0f172a;
+}
+
+body.light-theme .tone-btn.active {
+    background: rgba(56, 189, 248, 0.08);
+    border-color: var(--accent-blue);
+    color: #0284c7;
+}
+
+body.light-theme .config-switches {
+    background: rgba(15, 23, 42, 0.01);
+    border-color: rgba(15, 23, 42, 0.04);
+}
+
+body.light-theme .modal-card {
+    background: #ffffff;
+    color: #0f172a;
+}
+
+body.light-theme .api-security-warning {
+    background: rgba(52, 211, 153, 0.08);
+    color: #065f46;
+    border-color: rgba(52, 211, 153, 0.15);
+}
+
+body.light-theme .modal-header {
+    border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .modal-footer {
+    border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .card-copy-btn {
+    background: rgba(255, 255, 255, 0.85);
+}
+
+body.light-theme .card-copy-btn:hover {
+    background: #ffffff;
+}
+
+/* LIGHT THEME FOR LINKEDIN CARD PREVIEW */
+body.light-theme .linkedin-card {
+    background: #ffffff;
+    border-color: #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+body.light-theme .author-details h4 {
+    color: #191919;
+}
+
+body.light-theme .author-details p {
+    color: #666666;
+}
+
+body.light-theme .post-time {
+    color: #8c8c8c;
+}
+
+body.light-theme .card-options {
+    color: #666666;
+}
+
+body.light-theme .card-content-editable textarea {
+    color: #191919;
+}
+
+body.light-theme .character-count {
+    color: #8c8c8c;
+}
+
+body.light-theme .card-actions {
+    border-top-color: #e0e0e0;
+}
+
+body.light-theme .action-btn {
+    color: #666666;
+}
+
+body.light-theme .action-btn:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: #000000;
+}
+
+body.light-theme .action-btn svg {
+    color: #666666;
+}
+
+body.light-theme .card-content-editable.editing {
+    border-color: #0a66c2;
+    background: rgba(10, 102, 194, 0.02);
+}
+
+/* ANIMATION FOR THEME SWITCH */
+.icon-theme {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.light-theme .icon-theme {
+    transform: rotate(180deg);
+}
+

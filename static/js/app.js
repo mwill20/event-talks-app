@@ -11,6 +11,7 @@ const DOM = {
     // Header
     btnRefresh: document.getElementById('btn-refresh'),
     btnSettings: document.getElementById('btn-settings'),
+    btnTheme: document.getElementById('btn-theme'),
     syncText: document.getElementById('sync-text'),
     syncDot: document.querySelector('.sync-status .status-dot'),
     
@@ -18,6 +19,7 @@ const DOM = {
     searchInput: document.getElementById('search-input'),
     btnClearSearch: document.getElementById('btn-clear-search'),
     filterPills: document.getElementById('filter-pills'),
+    btnExportCsv: document.getElementById('btn-export-csv'),
     feedContainer: document.getElementById('feed-container'),
     
     // Right Panel States
@@ -66,9 +68,45 @@ const DOM = {
 // INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
+    loadTheme();
     bindEvents();
     fetchFeed(false);
 });
+
+// THEME MANAGEMENT
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+    } else {
+        document.body.classList.remove('light-theme');
+    }
+    updateThemeIcon(savedTheme);
+}
+
+function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-theme');
+    const newTheme = isLight ? 'light' : 'dark';
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+    showToast('info', `Switched to ${newTheme} theme.`);
+}
+
+function updateThemeIcon(theme) {
+    if (theme === 'light') {
+        DOM.btnTheme.innerHTML = `
+            <svg class="icon-theme" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+        `;
+    } else {
+        DOM.btnTheme.innerHTML = `
+            <svg class="icon-theme" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path class="sun-path" d="M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0 M12 1v2 M12 21v2 M4.22 4.22l1.42 1.42 M18.36 18.36l1.42 1.42 M1 12h2 M21 12h2 M4.22 19.78l1.42-1.42 M18.36 5.64l1.42-1.42" />
+            </svg>
+        `;
+    }
+}
 
 // LOAD & SAVE SETTINGS FROM LOCALSTORAGE
 function loadSettings() {
@@ -247,7 +285,42 @@ function renderFeed() {
             <div class="feed-card-body">
                 <p>${item.text}</p>
             </div>
+            <button class="card-copy-btn" title="Copy raw update content">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+            </button>
         `;
+        
+        // Bind copy button click
+        const copyBtn = card.querySelector('.card-copy-btn');
+        copyBtn.addEventListener('click', async (e) => {
+            e.stopPropagation(); // Prevent selecting the card
+            try {
+                await navigator.clipboard.writeText(item.text);
+                
+                // Show copied state
+                copyBtn.classList.add('copied');
+                copyBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><polyline points="20 6 9 17 4 12"/></svg>
+                `;
+                showToast('success', 'Update text copied to clipboard!');
+                
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyBtn.innerHTML = `
+                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                    `;
+                }, 1500);
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'Failed to copy card content.');
+            }
+        });
         
         card.addEventListener('click', () => selectUpdateItem(item));
         DOM.feedContainer.appendChild(card);
@@ -411,6 +484,12 @@ function bindEvents() {
     // Refresh feed
     DOM.btnRefresh.addEventListener('click', () => fetchFeed(true));
     
+    // Theme toggle
+    DOM.btnTheme.addEventListener('click', toggleTheme);
+    
+    // Export CSV
+    DOM.btnExportCsv.addEventListener('click', exportFilteredToCSV);
+    
     // Toggle modal visibility
     DOM.btnSettings.addEventListener('click', () => {
         DOM.settingsModal.classList.remove('hidden');
@@ -561,4 +640,41 @@ function bindEvents() {
             showToast('error', 'Failed to copy to clipboard.');
         }
     });
+}
+
+// EXPORT CURRENT FILTERED ITEMS TO CSV
+function exportFilteredToCSV() {
+    const filteredItems = parsedItems.filter(item => {
+        const matchesCategory = (activeFilter === 'all' || item.type.toLowerCase() === activeFilter.toLowerCase());
+        const matchesSearch = searchQuery === '' || 
+            item.text.toLowerCase().includes(searchQuery) || 
+            item.type.toLowerCase().includes(searchQuery) ||
+            item.date.toLowerCase().includes(searchQuery);
+        return matchesCategory && matchesSearch;
+    });
+
+    if (filteredItems.length === 0) {
+        showToast('warning', 'No release notes found to export.');
+        return;
+    }
+
+    const csvRows = [["Date", "Type", "Description", "URL"]];
+    filteredItems.forEach(item => {
+        csvRows.push([item.date, item.type, item.text, item.link]);
+    });
+
+    const csvString = csvRows.map(row => 
+        row.map(value => `"${value.replace(/"/g, '""')}"`).join(",")
+    ).join("\n");
+
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `bigquery_release_notes_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('success', `Exported ${filteredItems.length} release notes to CSV!`);
 }

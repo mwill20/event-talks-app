@@ -40,6 +40,12 @@
                     <span class="status-dot green"></span>
                     <span id="sync-text">Checking feed...</span>
                 </div>
+                <button id="btn-theme" class="btn-icon" title="Toggle Light/Dark Theme">
+                    <svg class="icon-theme" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Sun details -->
+                        <path class="sun-path" d="M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0 M12 1v2 M12 21v2 M4.22 4.22l1.42 1.42 M18.36 18.36l1.42 1.42 M1 12h2 M21 12h2 M4.22 19.78l1.42-1.42 M18.36 5.64l1.42-1.42" />
+                    </svg>
+                </button>
                 <button id="btn-refresh" class="btn-icon" title="Refresh Release Notes">
                     <svg class="icon-refresh" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
@@ -67,12 +73,20 @@
                         <input type="text" id="search-input" placeholder="Search updates (e.g. vector search, billing)...">
                         <button id="btn-clear-search" class="btn-clear" style="display: none;">&times;</button>
                     </div>
-                    <div class="filter-pills" id="filter-pills">
-                        <button class="pill active" data-filter="all">All</button>
-                        <button class="pill" data-filter="Feature">Features</button>
-                        <button class="pill" data-filter="Change">Changes</button>
-                        <button class="pill" data-filter="Deprecation">Deprecations</button>
-                        <button class="pill" data-filter="Fix">Fixes</button>
+                    <div class="filter-controls-row">
+                        <div class="filter-pills" id="filter-pills">
+                            <button class="pill active" data-filter="all">All</button>
+                            <button class="pill" data-filter="Feature">Features</button>
+                            <button class="pill" data-filter="Change">Changes</button>
+                            <button class="pill" data-filter="Deprecation">Deprecations</button>
+                            <button class="pill" data-filter="Fix">Fixes</button>
+                        </div>
+                        <button id="btn-export-csv" class="btn-export" title="Export Current List to CSV">
+                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                            </svg>
+                            <span>CSV</span>
+                        </button>
                     </div>
                 </div>
 
