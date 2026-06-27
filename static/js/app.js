@@ -42,6 +42,7 @@ const DOM = {
     btnGenerate: document.getElementById('btn-generate'),
     
     // LinkedIn Card Preview
+    authorAvatarContainer: document.getElementById('author-avatar-container'),
     userDisplayName: document.getElementById('user-display-name'),
     userDisplayTitle: document.getElementById('user-display-title'),
     postDraftArea: document.getElementById('post-draft-area'),
@@ -58,6 +59,7 @@ const DOM = {
     btnToggleKeyVisibility: document.getElementById('btn-toggle-key-visibility'),
     profileNameInput: document.getElementById('profile-name'),
     profileTitleInput: document.getElementById('profile-title'),
+    profileAvatarInput: document.getElementById('profile-avatar'),
     btnSaveSettings: document.getElementById('btn-save-settings'),
     btnClearSettings: document.getElementById('btn-clear-settings'),
     
@@ -113,14 +115,17 @@ function loadSettings() {
     const key = localStorage.getItem('gemini_api_key') || '';
     const name = localStorage.getItem('linkedin_name') || 'Google Cloud Architect';
     const title = localStorage.getItem('linkedin_title') || 'Data Platform & Analytics Expert';
+    const avatar = localStorage.getItem('linkedin_avatar') || '';
     
     DOM.geminiKeyInput.value = key;
     DOM.profileNameInput.value = name;
     DOM.profileTitleInput.value = title;
+    DOM.profileAvatarInput.value = avatar;
     
     // Update preview card right away
     DOM.userDisplayName.textContent = name;
     DOM.userDisplayTitle.textContent = title;
+    updateAvatarImage(avatar);
     
     updateAPIIndicator(key);
 }
@@ -129,13 +134,16 @@ function saveSettings() {
     const key = DOM.geminiKeyInput.value.trim();
     const name = DOM.profileNameInput.value.trim() || 'Google Cloud Architect';
     const title = DOM.profileTitleInput.value.trim() || 'Data Platform & Analytics Expert';
+    const avatar = DOM.profileAvatarInput.value.trim();
     
     localStorage.setItem('gemini_api_key', key);
     localStorage.setItem('linkedin_name', name);
     localStorage.setItem('linkedin_title', title);
+    localStorage.setItem('linkedin_avatar', avatar);
     
     DOM.userDisplayName.textContent = name;
     DOM.userDisplayTitle.textContent = title;
+    updateAvatarImage(avatar);
     
     updateAPIIndicator(key);
     
@@ -147,18 +155,34 @@ function clearSettings() {
     DOM.geminiKeyInput.value = '';
     DOM.profileNameInput.value = '';
     DOM.profileTitleInput.value = '';
+    DOM.profileAvatarInput.value = '';
     
     localStorage.removeItem('gemini_api_key');
     localStorage.removeItem('linkedin_name');
     localStorage.removeItem('linkedin_title');
+    localStorage.removeItem('linkedin_avatar');
     
     DOM.userDisplayName.textContent = 'Google Cloud Architect';
     DOM.userDisplayTitle.textContent = 'Data Platform & Analytics Expert';
+    updateAvatarImage('');
     
     updateAPIIndicator('');
     
     DOM.settingsModal.classList.add('hidden');
     showToast('info', 'Settings cleared successfully.');
+}
+
+function updateAvatarImage(url) {
+    if (url) {
+        DOM.authorAvatarContainer.innerHTML = `<img src="${url}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+    } else {
+        DOM.authorAvatarContainer.innerHTML = `
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="24" height="24" rx="12" transform="scale(1.666)" fill="#1e293b"/>
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#64748b"/>
+            </svg>
+        `;
+    }
 }
 
 function updateAPIIndicator(apiKey) {
